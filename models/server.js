@@ -23,7 +23,7 @@ class Server {
     // aqui vamos a mantener a todos los clientes conectados
     this.io = socketio(this.server, {
       cors: {
-        origin: "http://localhost:3000",
+        origin: process.env.URL_PAGE,
         methods: ["GET", "POST"],
         credentials: true,
       },
