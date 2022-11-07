@@ -18,8 +18,9 @@ const UsuarioSchema = Schema({
     type: Boolean,
     default: false,
   },
-  image: {
-    type: String,
+  messages: {
+    type: Number,
+    require: false,
   },
 });
 

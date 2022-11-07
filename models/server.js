@@ -5,9 +5,10 @@ const socketio = require("socket.io");
 const path = require("path");
 const Sockets = require("./sockets");
 const cors = require("cors");
-const { dbConnection } = require("../database/config");
+const { connect } = require("../database/config");
 const { route } = require("../router/auth");
 const fileUpload = require("express-fileupload");
+const { db } = require("./message");
 
 class Server {
   constructor() {
@@ -15,7 +16,7 @@ class Server {
     this.port = process.env.PORT;
 
     //connect to mongoDB
-    dbConnection();
+    connect();
     // Http server
     this.server = http.createServer(this.app);
 

@@ -1,6 +1,7 @@
 const Usuario = require("../models/user");
 const bcrypt = require("bcryptjs");
 const { generarJWT } = require("../helpers/jwt");
+const { isValidObjectId } = require("mongoose");
 
 const createUser = async (req, res) => {
   try {
@@ -102,4 +103,34 @@ const renewToken = async (req, res) => {
     console.log(error);
   }
 };
-module.exports = { createUser, loginUser, renewToken };
+
+const loadUser = async (req, res) => {
+  const uid = req.headers["uid"];
+
+  console.log("este del body", uid);
+  if (!isValidObjectId(uid)) {
+    return res.status(500).json({
+      ok: false,
+      msg: "No es un mongo ID valido",
+    });
+  }
+  console.log("esto es lo que esta en el body:", uid);
+  try {
+    const user = await Usuario.findById(uid);
+    console.log("user desde la base de datos", user);
+    //verify if the email exists
+    if (!user) {
+      return res.status(404).json({
+        ok: false,
+        msg: "el usuario no existe",
+      });
+    }
+    res.status(200).json({
+      ok: true,
+      user: user,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+module.exports = { createUser, loginUser, renewToken, loadUser };

@@ -17,7 +17,8 @@ const MessageSchema = Schema(
       required: true,
     },
     image: {
-      type: String
+      type: String,
+      require: false,
     },
   },
   { timestamps: true } //le agregamos esto para que mongo le asigne la fecha de creacion y de ultima modificacion

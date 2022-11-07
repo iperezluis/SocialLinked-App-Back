@@ -3,6 +3,7 @@ const {
   userDisconnected,
   getUsuarios,
   recordMessage,
+  getNewMessage,
 } = require("../controllers/sockets");
 const { comprobarJWT } = require("../helpers/jwt");
 
@@ -34,15 +35,50 @@ class Sockets {
       // console.log("usuario conectado", nombre);
       //ahora le mandamos a todosl os usuarios la lista de usuarios conectados
       this.io.emit("lista-usuarios", await getUsuarios());
-
       client.on("enviar-mensaje", async (message) => {
         const mensaje = await recordMessage(message);
         console.log("enviando message a ", message.to);
+        const newMessageFrom = await getNewMessage(message.from);
         //ahora ese mensaje se lo mandamos a la sala que tiene por nombre el uid
         this.io.to(message.to).emit("enviar-mensaje", mensaje);
+        this.io.to(message.to).emit("new-notification", newMessageFrom);
+        // console.log("numero mensajes:", getNewMessage);
         this.io.to(message.from).emit("enviar-mensaje", mensaje);
         // console.log(message);
         // client.emit('obtener-mensaje', )
+      });
+
+      //Receiving videoCall
+      client.on("iniciando-videollamada", async (message) => {
+        console.log("recibiendo videollamada de", message.from);
+        const newMessageFrom = await getNewMessage(message.from);
+        this.io.to(message.to).emit("iniciando-videollamada", newMessageFrom);
+        const toVideoCall = await getNewMessage(message.to);
+        this.io.to(message.from).emit("llamada-saliente", toVideoCall);
+        this.io.to(message.to).emit("new-notification", message.from);
+      });
+      client.on("llamada-contestada", async (callback) => {
+        console.log(" videollamada contestada", callback);
+        const getUserFrom = await getNewMessage(callback.from);
+        const getUserTo = await getNewMessage(callback.to);
+        this.io.to(callback.to).emit("en-vivo-con", getUserFrom);
+        this.io.to(callback.from).emit("en-vivo", getUserTo);
+        // this.io.to(message.to).emit("new-notification", newMessageFrom);
+      });
+      client.on("llamada-rechazada", async (status) => {
+        console.log(" videollamada rechazada", status);
+        // const openCamera = await openCamera();
+        this.io.to(message.to).emit("llamada-rechazada", status);
+        // this.io.to(message.to).emit("new-notification", newMessageFrom);
+      });
+      client.on("finalizar-llamada", async (callback) => {
+        console.log(" llamada finalizada", callback);
+        const getUserFrom = await getNewMessage(callback.from);
+        const getUserTo = await getNewMessage(callback.to);
+        this.io.to(callback.to).emit("llamada-finalizada-from", getUserFrom);
+        this.io.to(callback.from).emit("llamada-finalizada", getUserTo);
+        // const openCamera = await openCamera();
+        // this.io.to(message.to).emit("new-notification", newMessageFrom);
       });
       client.on("disconnect", async () => {
         await userDisconnected(uid);

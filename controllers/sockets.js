@@ -1,5 +1,6 @@
 const Usuario = require("../models/user");
 const Mensaje = require("../models/message");
+const { connect, disconnect } = require("../database/config");
 
 //cuando el usuario se conecte y sew desconecte actualizamos y almacenamos en la  base de datos
 const userConnected = async (uid) => {
@@ -24,6 +25,11 @@ const userDisconnected = async (uid) => {
     console.log(error);
   }
 };
+
+const loadUser = async (uid) => {
+  const user = await User.findById(uid);
+  return user;
+};
 const getUsuarios = async () => {
   const users = await Usuario.find().sort("-online");
   return users;
@@ -39,10 +45,25 @@ const recordMessage = async (payload) => {
     console.log(error);
   }
 };
+const getNewMessage = async (userId) => {
+  // await connect();
+  try {
+    const user = await Usuario.findById(userId);
+    if (!user) {
+      return;
+    }
+    // await disconnect();
+    return user;
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 module.exports = {
+  loadUser,
   userConnected,
   userDisconnected,
   getUsuarios,
   recordMessage,
+  getNewMessage,
 };
