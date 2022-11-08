@@ -40,8 +40,9 @@ class Sockets {
         console.log("enviando message a ", message.to);
         const newMessageFrom = await getNewMessage(message.from);
         //ahora ese mensaje se lo mandamos a la sala que tiene por nombre el uid
-        this.io.to(message.to).emit("enviar-mensaje", mensaje);
+        // this.io.to(message.to).emit("enviar-mensaje", mensaje);
         this.io.to(message.to).emit("new-notification", newMessageFrom);
+        // this.io.to(message.from).emit("new-notification-from", newMessageFrom);
         // console.log("numero mensajes:", getNewMessage);
         this.io.to(message.from).emit("enviar-mensaje", mensaje);
         // console.log(message);
@@ -52,7 +53,7 @@ class Sockets {
       client.on("iniciando-videollamada", async (message) => {
         console.log("recibiendo videollamada de", message.from);
         const newMessageFrom = await getNewMessage(message.from);
-        this.io.to(message.to).emit("iniciando-videollamada", newMessageFrom);
+        this.io.to(message.to).emit("recibiendo-videollamada", newMessageFrom);
         const toVideoCall = await getNewMessage(message.to);
         this.io.to(message.from).emit("llamada-saliente", toVideoCall);
         this.io.to(message.to).emit("new-notification", message.from);
@@ -65,10 +66,13 @@ class Sockets {
         this.io.to(callback.from).emit("en-vivo", getUserTo);
         // this.io.to(message.to).emit("new-notification", newMessageFrom);
       });
-      client.on("llamada-rechazada", async (status) => {
-        console.log(" videollamada rechazada", status);
-        // const openCamera = await openCamera();
-        this.io.to(message.to).emit("llamada-rechazada", status);
+      client.on("llamada-cancelada", async (callback) => {
+        console.log(" videollamada cancelada", callback);
+        const getUserFrom = await getNewMessage(callback.from);
+        const getUserTo = await getNewMessage(callback.to);
+        this.io.to(callback.to).emit("llamada-cancelada-from", getUserFrom);
+        this.io.to(callback.from).emit("llamada-cancelada-to", getUserTo);
+        // this.io.to(message.to).emit("llamada-rechazada", status);
         // this.io.to(message.to).emit("new-notification", newMessageFrom);
       });
       client.on("finalizar-llamada", async (callback) => {
