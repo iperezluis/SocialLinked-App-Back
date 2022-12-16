@@ -58,6 +58,11 @@ class Server {
     this.app.use("/api/login", require("../router/auth"));
     this.app.use("/api/messages", require("../router/messages"));
     this.app.use("/api", require("../router/uploads"));
+
+    //Aqui arreglamos el error de cuando relogueabamos no conseguiamos la ruta en el back
+    this.app.get("*", (req, res) => {
+      res.sendFile(`${__dirname.replace("models", "")}` + "/public/index.html");
+    });
   }
   //configurar los sockets por clases para refactorizar el codigo
   settingsSockets() {
