@@ -20,7 +20,7 @@ RUN yarn build
 FROM node:16-alpine  AS runner
 
 # Set working directory
-WORKDIR /usr/src/app
+WORKDIR /usr/app
 COPY package.json package-lock.json ./
 RUN yarn install --prod 
 # RUN yarn install --prod --ignore-engines
@@ -42,4 +42,4 @@ RUN yarn install --prod
 
 EXPOSE 3500
 
-CMD [ "yarn","start" ]
+CMD [ "npm","start" ]
