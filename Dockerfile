@@ -4,7 +4,7 @@ FROM node:16-alpine AS deps
 # Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
-COPY package.json yarn.lock ./
+COPY package.json package-lock.json ./
 RUN yarn install --frozen-lockfile 
 # RUN yarn install --frozen-lockfile --ignore-engines
 
@@ -21,7 +21,7 @@ FROM node:16-alpine  AS runner
 
 # Set working directory
 WORKDIR /usr/src/app
-COPY package.json yarn.lock ./
+COPY package.json package-lock.json ./
 RUN yarn install --prod 
 # RUN yarn install --prod --ignore-engines
 # COPY --from=builder /app/.next ./.next
@@ -40,6 +40,6 @@ RUN yarn install --prod
 #chequear el contenedor periodicamente
 # HEALTHCHECK  CMD curl --fail http://0.0.0.0:3000 || exit 
 
-EXPOSE 3000
+EXPOSE 3500
 
 CMD [ "yarn","start" ]
